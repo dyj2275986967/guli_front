@@ -1,4 +1,4 @@
-package com.atguigu.eduservice.entity.vo;
+package com.atguigu.eduservice.entity.query;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,8 +18,5 @@ public class TeacherQuery {
     @ApiModelProperty(value = "查询结束时间", example = "2019-12-01 10:10:10")
     private String end;
 
-    public String getName() {
-        return name;
-    }
 
 }

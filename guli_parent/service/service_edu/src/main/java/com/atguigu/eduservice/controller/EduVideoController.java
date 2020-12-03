@@ -2,10 +2,13 @@ package com.atguigu.eduservice.controller;
 
 
 import com.atguigu.commonutils.R;
+import com.atguigu.eduservice.client.VodClient;
 import com.atguigu.eduservice.entity.EduVideo;
 import com.atguigu.eduservice.service.EduVideoService;
+import com.atguigu.servicebase.exceptionhander.GuiLiException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -23,6 +26,9 @@ public class EduVideoController {
 
   @Autowired
   private EduVideoService eduVideoService;
+
+  @Autowired
+  private VodClient vodClient;
 
 
     //添加小节
@@ -53,10 +59,23 @@ public class EduVideoController {
     //TODO  删除小结时要把视频也要删掉
     @DeleteMapping("{videoId}")
     public R deleteVideoById(@PathVariable String videoId){
+
+        EduVideo eduVideo=    eduVideoService.getById(videoId);
+        String videoSourceId=eduVideo.getVideoSourceId();
+        if(!StringUtils.isEmpty(videoSourceId)){
+            //远程调用实现视频删除
+         R result =  vodClient.removeAlyVideo(eduVideo.getVideoSourceId());
+            if(result.getCode() == 20001){
+                throw new GuiLiException(20001,"删除视频失败，熔断器");
+            }
+        }
+
+
+
+
      Boolean flag =   eduVideoService.removeById(videoId);
         if(flag){
           return   R.ok().data("msg","删除成功");
-
         }else{
           return  R.error();
         }
